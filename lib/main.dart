@@ -152,15 +152,26 @@ class _HomeScreenWidgetState extends State<HomeScreen> {
 }
 
 class _AvailableRoomListWidget extends StatelessWidget {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.lightGreen,
-        child: Center(
-          child: Text('Room List'),
-        ),
-      ),
-    );
+        body: Center(
+      child: Scrollbar(
+          isAlwaysShown: false,
+          showTrackOnHover: false,
+          controller: _scrollController,
+          child: ListView.builder(
+              controller: _scrollController,
+              itemCount: 50,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: ListTile(
+                    title: Text("Item: ${index + 1}"),
+                  ),
+                );
+              })),
+    ));
   }
 }
