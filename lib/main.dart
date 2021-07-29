@@ -167,10 +167,28 @@ class _AvailableRoomListWidget extends StatelessWidget {
               itemCount: 50,
               itemBuilder: (context, index) {
                 return Card(
-                  child: ListTile(
-                    title: Text("Item: ${index + 1}"),
-                  ),
-                );
+                    child: Column(
+                  children: <Widget>[
+                    ListTile(
+                        leading: Material(
+                            borderRadius: BorderRadius.circular(50),
+                            child: InkWell(
+                              onTap: () {},
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: CachedNetworkImage(
+                                  width: 32,
+                                  height: 32,
+                                  fit: BoxFit.cover,
+                                  imageUrl:
+                                      'https://lh3.googleusercontent.com/ogw/ADea4I7Abb9tQqHg2l2zJ-9Ifg4JjZgylFIi8yDJYfxzZA=s32-c-mo',
+                                ),
+                              ),
+                            )),
+                        title: Text("Karaoke On Clubhouse"),
+                        subtitle: Text('sub title')),
+                  ],
+                ));
               })),
     ));
   }
