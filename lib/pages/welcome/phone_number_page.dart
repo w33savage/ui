@@ -202,7 +202,6 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
         setState(() {
           errorMessage = 'Invalid Code';
         });
-        Navigator.of(context).pop();
         smsOTPDialog(context).then((value) {
           print('sign in');
         });
@@ -245,7 +244,6 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
                 child: Text('Done'),
                 onPressed: () {
                   final User user = _auth.currentUser;
-                  print('User Data----------- $user');
                   if (user != null) {
                     History.pushPageReplacement(context, HomePage());
                   } else {
