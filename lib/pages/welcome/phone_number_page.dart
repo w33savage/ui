@@ -1,9 +1,13 @@
+import 'package:club_house/pages/home/home_page.dart';
 import 'package:club_house/util/history.dart';
 import 'package:club_house/widgets/round_button.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:club_house/util/style.dart';
 import 'package:club_house/pages/welcome/invitation_page.dart';
 import 'package:flutter/material.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 
 class PhoneNumberPage extends StatefulWidget {
   @override
@@ -155,7 +159,122 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
     );
   }
 
+  String phoneNo;
+  String smsOTP;
+  String verificationId;
+  String errorMessage = '';
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> verifyPhone(phoneNo) async {
+    final PhoneCodeSent smsOTPSent = (String verId, [int forceCodeResend]) {
+      this.verificationId = verId;
+      smsOTPDialog(context).then((value) {
+        print('sign in');
+      });
+    };
+    try {
+      await _auth.verifyPhoneNumber(
+          phoneNumber: phoneNo, // PHONE NUMBER TO SEND OTP
+          codeAutoRetrievalTimeout: (String verId) {
+            //Starts the phone number verification process for the given phone number.
+            //Either sends an SMS with a 6 digit code to the phone number specified, or sign's the user in and [verificationCompleted] is called.
+            this.verificationId = verId;
+          },
+          codeSent:
+              smsOTPSent, // WHEN CODE SENT THEN WE OPEN DIALOG TO ENTER OTP.
+          timeout: const Duration(seconds: 20),
+          verificationCompleted: (AuthCredential phoneAuthCredential) {
+            print(phoneAuthCredential);
+          },
+          verificationFailed: (FirebaseAuthException exceptio) {
+            print('${exceptio.message}');
+          });
+    } catch (e) {
+      handleError(e);
+    }
+  }
+
+  handleError(PlatformException error) {
+    print(error);
+    switch (error.code) {
+      case 'ERROR_INVALID_VERIFICATION_CODE':
+        FocusScope.of(context).requestFocus(new FocusNode());
+        setState(() {
+          errorMessage = 'Invalid Code';
+        });
+        Navigator.of(context).pop();
+        smsOTPDialog(context).then((value) {
+          print('sign in');
+        });
+        break;
+      default:
+        setState(() {
+          errorMessage = error.message;
+        });
+
+        break;
+    }
+  }
+
+  Future<bool> smsOTPDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+            title: Text('Enter SMS Code'),
+            content: Container(
+              height: 85,
+              child: Column(children: [
+                TextField(
+                  onChanged: (value) {
+                    this.smsOTP = value;
+                  },
+                ),
+                (errorMessage != ''
+                    ? Text(
+                        errorMessage,
+                        style: TextStyle(color: Colors.red),
+                      )
+                    : Container())
+              ]),
+            ),
+            contentPadding: EdgeInsets.all(10),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Done'),
+                onPressed: () {
+                  final User user = _auth.currentUser;
+                  print('User Data----------- $user');
+                  if (user != null) {
+                    History.pushPageReplacement(context, HomePage());
+                  } else {
+                    signIn();
+                  }
+                },
+              )
+            ],
+          );
+        });
+  }
+
   signUp() {
-    History.pushPageUntil(context, InvitationPage());
+    verifyPhone('+91${_phoneNumberController.text}');
+    // History.pushPageUntil(context, InvitationPage());
+  }
+
+  signIn() async {
+    try {
+      final AuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsOTP,
+      );
+      final User user = (await _auth.signInWithCredential(credential)).user;
+      final User currentUser = _auth.currentUser;
+      assert(user.uid == currentUser.uid);
+      History.pushPageReplacement(context, HomePage());
+    } catch (e) {
+      handleError(e);
+    }
   }
 }
