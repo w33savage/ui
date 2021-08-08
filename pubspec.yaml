@@ -30,6 +30,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   country_code_picker: ^1.7.0
   pull_to_refresh: ^1.6.3
+  firebase_auth:
 
 dev_dependencies:
   flutter_test:

@@ -2,8 +2,11 @@ import 'package:club_house/pages/home/home_page.dart';
 import 'package:club_house/pages/welcome/welcome_page.dart';
 import 'package:club_house/util/style.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
