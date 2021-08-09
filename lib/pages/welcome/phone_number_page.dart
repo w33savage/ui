@@ -244,6 +244,7 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
                 child: Text('Done'),
                 onPressed: () {
                   final User user = _auth.currentUser;
+                  print('user details $user');
                   if (user != null) {
                     History.pushPageReplacement(context, HomePage());
                   } else {
@@ -270,7 +271,7 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
       final User user = (await _auth.signInWithCredential(credential)).user;
       final User currentUser = _auth.currentUser;
       assert(user.uid == currentUser.uid);
-      History.pushPageReplacement(context, HomePage());
+      History.pushPageUntil(context, InvitationPage());
     } catch (e) {
       handleError(e);
     }

@@ -1,8 +1,11 @@
+import 'package:club_house/services/authenticate.dart';
 import 'package:club_house/util/history.dart';
 import 'package:club_house/widgets/round_button.dart';
 import 'package:club_house/util/style.dart';
 import 'package:club_house/pages/welcome/username_page.dart';
 import 'package:flutter/material.dart';
+
+import 'package:flutter/services.dart';
 
 class FullNamePage extends StatefulWidget {
   @override
@@ -193,7 +196,12 @@ class _FullNamePageState extends State<FullNamePage> {
     );
   }
 
-  next() {
-    History.pushPage(context, UsernamePage());
+  next() async {
+    try {
+      await AuthService().createUser(_firstNameController, _lastNameController);
+      History.pushPage(context, UsernamePage());
+    } catch (e) {
+      print('ERROR OCURRED!');
+    }
   }
 }

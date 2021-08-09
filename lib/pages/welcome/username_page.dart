@@ -1,3 +1,4 @@
+import 'package:club_house/services/authenticate.dart';
 import 'package:club_house/util/history.dart';
 import 'package:club_house/widgets/round_button.dart';
 import 'package:club_house/util/style.dart';
@@ -126,7 +127,12 @@ class _UsernamePageState extends State<UsernamePage> {
     );
   }
 
-  next() {
-    History.pushPageUntil(context, PickPhotoPage());
+  next() async {
+    try {
+      await AuthService().updateUser({"displayName": _userNameController.text});
+      History.pushPageUntil(context, PickPhotoPage());
+    } catch (e) {
+      print('ERROR OCCURRED! $e');
+    }
   }
 }
