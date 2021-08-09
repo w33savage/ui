@@ -1,10 +1,11 @@
 // import 'package:clubhouse/utils/router.dart';
 // import 'package:clubhouse/screens/home/home_screen.dart';
 import 'package:club_house/pages/home/home_page.dart';
-import 'package:club_house/pages/welcome/phone_number_page.dart';
+import 'package:club_house/pages/welcome/welcome_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:club_house/util/history.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   /// returns the initial screen depending on the authentication results
@@ -12,15 +13,63 @@ class AuthService {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (BuildContext context, snapshot) {
-        print('hii');
         if (snapshot.hasData) {
-          return PhoneNumberPage();
+          return HomePage();
         } else {
-          print(snapshot);
-          return PhoneNumberPage();
+          return WelcomePage();
         }
       },
     );
+  }
+
+  createUser(_firstNameController, _lastNameController) async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    final User _user = _auth.currentUser;
+
+    final collection = FirebaseFirestore.instance.collection('users');
+    await collection.add(
+      {
+        'firstName': _firstNameController.text,
+        'lastName': _lastNameController.text,
+        'uid': _user.uid
+      },
+    );
+  }
+
+  updateUser(updateRequestData) async {
+    try {
+      FirebaseAuth _auth = FirebaseAuth.instance;
+      final User _user = _auth.currentUser;
+
+      final QuerySnapshot filteredUsers = await FirebaseFirestore.instance
+          .collection('users')
+          .where(
+            'uid',
+            isEqualTo: _user.uid,
+          )
+          .get();
+
+      final List<DocumentSnapshot> userData = filteredUsers.docs;
+
+      final String currentActiveUserId = userData[0].id;
+
+      // if (isAuthUser) {
+      //   print(updateRequestData);
+      //   if (updateRequestData["displayName"] != null) {
+      //     print(updateRequestData);
+      //     await _user.updateDisplayName(updateRequestData["displayName"]);
+      //   } else if (updateRequestData["displayName"] != null) {
+      //     await _user.updatePhotoURL(updateRequestData["photoURL"]);
+      //   }
+      // } else {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentActiveUserId)
+          .update(updateRequestData);
+      // }
+    } catch (e) {
+      throw e;
+    }
   }
 
   /// This method is used to logout the `FirebaseUser`
