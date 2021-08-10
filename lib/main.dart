@@ -1,5 +1,6 @@
 // import 'package:club_house/pages/home/home_page.dart';
 // import 'package:club_house/pages/welcome/welcome_page.dart';
+import 'package:club_house/pages/welcome/pick_photo_page.dart';
 import 'package:club_house/services/authenticate.dart';
 import 'package:club_house/util/style.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,8 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: AuthService().handleAuth(),
+      // TODO once the profile pic implementation over
+      // home: PickPhotoPage()
     );
   }
 }

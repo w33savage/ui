@@ -1,4 +1,5 @@
 import 'package:club_house/models/user.dart';
+import 'package:club_house/services/authenticate.dart';
 import 'package:club_house/widgets/round_image.dart';
 import 'package:flutter/material.dart';
 
@@ -6,7 +7,8 @@ class HomeAppBar extends StatelessWidget {
   final User profile;
   final Function onProfileTab;
 
-  const HomeAppBar({Key key, this.profile, this.onProfileTab}) : super(key: key);
+  const HomeAppBar({Key key, this.profile, this.onProfileTab})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +53,9 @@ class HomeAppBar extends StatelessWidget {
               onTap: onProfileTab,
               child: RoundImage(
                 path: profile.profileImage,
+                // path: AuthService().getProfilePic() == null
+                //     ? profile.profileImage
+                //     : AuthService().getProfilePic(),
                 width: 40,
                 height: 40,
               ),

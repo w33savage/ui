@@ -1,13 +1,19 @@
 // import 'package:clubhouse/utils/router.dart';
 // import 'package:clubhouse/screens/home/home_screen.dart';
+import 'dart:io';
+
 import 'package:club_house/pages/home/home_page.dart';
 import 'package:club_house/pages/welcome/welcome_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:club_house/util/history.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
+  FirebaseStorage storage = FirebaseStorage.instance;
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
   /// returns the initial screen depending on the authentication results
   handleAuth() {
     return StreamBuilder(
@@ -70,6 +76,26 @@ class AuthService {
     } catch (e) {
       throw e;
     }
+  }
+
+  uploadProfilePic(_image) async {
+    final User _user = _auth.currentUser;
+
+    Reference reference = storage.ref().child("profileImages/${_user.uid}");
+
+    //Upload the file to firebase
+    await reference.putFile(File(_image.path));
+
+    // Future<String> url = res.ref.getDownloadURL();
+  }
+
+  getProfilePic() async {
+    final User _user = _auth.currentUser;
+
+    Reference reference = storage.ref().child("profileImages/${_user.uid}");
+    var downloadUrl = await reference.getDownloadURL();
+    // //String url = (await reference.getDownloadURL()).toString();
+    return new NetworkImage(downloadUrl);
   }
 
   /// This method is used to logout the `FirebaseUser`
