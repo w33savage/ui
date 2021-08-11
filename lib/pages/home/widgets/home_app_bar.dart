@@ -1,14 +1,35 @@
 import 'package:club_house/models/user.dart';
 import 'package:club_house/services/authenticate.dart';
 import 'package:club_house/widgets/round_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
-class HomeAppBar extends StatelessWidget {
-  final User profile;
-  final Function onProfileTab;
-
+class HomeAppBar extends StatefulWidget {
   const HomeAppBar({Key key, this.profile, this.onProfileTab})
       : super(key: key);
+
+  final User profile;
+  final Function onProfileTab;
+  @override
+  _HomeAppBarPageState createState() => _HomeAppBarPageState();
+}
+
+class _HomeAppBarPageState extends State<HomeAppBar> {
+  String _profilePic;
+  User profile;
+  _HomeAppBarPageState({this.profile});
+
+  Future<void> downloadURLExample() async {
+    FirebaseStorage storage = FirebaseStorage.instance;
+    Reference reference =
+        storage.ref().child("profileImages/${AuthService().getUid()}");
+    var downloadUrl = await reference.getDownloadURL();
+    setState(() {
+      _profilePic = downloadUrl;
+    });
+
+    return downloadUrl;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,15 +71,21 @@ class HomeAppBar extends StatelessWidget {
               width: 10,
             ),
             GestureDetector(
-              onTap: onProfileTab,
-              child: RoundImage(
-                path: profile.profileImage,
-                // path: AuthService().getProfilePic() == null
-                //     ? profile.profileImage
-                //     : AuthService().getProfilePic(),
-                width: 40,
-                height: 40,
-              ),
+              onTap: widget.onProfileTab,
+              child: (downloadURLExample().toString() == null)
+                  ? RoundImage(
+                      path: profile.profileImage,
+                      width: 40,
+                      height: 40,
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.network(
+                        _profilePic,
+                        height: 40,
+                        fit: BoxFit.fill,
+                        width: 40,
+                      )),
             )
           ],
         ),

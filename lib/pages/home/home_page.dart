@@ -14,9 +14,11 @@ class HomePage extends StatelessWidget {
         title: HomeAppBar(
           profile: myProfile,
           onProfileTab: () {
-            History.pushPage(context, ProfilePage(
-              profile: myProfile,
-            ));
+            History.pushPage(
+                context,
+                ProfilePage(
+                  profile: myProfile,
+                ));
           },
         ),
       ),
