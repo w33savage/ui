@@ -89,6 +89,11 @@ class AuthService {
     // Future<String> url = res.ref.getDownloadURL();
   }
 
+  getUid() {
+    final User _user = _auth.currentUser;
+    return _user.uid;
+  }
+
   getProfilePic() async {
     final User _user = _auth.currentUser;
 
