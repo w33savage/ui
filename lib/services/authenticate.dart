@@ -13,6 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AuthService {
   FirebaseStorage storage = FirebaseStorage.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
+  var _profilePic;
 
   /// returns the initial screen depending on the authentication results
   handleAuth() {
@@ -78,6 +79,26 @@ class AuthService {
     }
   }
 
+  getUser() async {
+    try {
+      FirebaseAuth _auth = FirebaseAuth.instance;
+      final User _user = _auth.currentUser;
+
+      final QuerySnapshot filteredUsers = await FirebaseFirestore.instance
+          .collection('users')
+          .where(
+            'uid',
+            isEqualTo: _user.uid,
+          )
+          .get();
+
+      final List<DocumentSnapshot> userData = filteredUsers.docs;
+      return userData[0];
+    } catch (e) {
+      print(e);
+    }
+  }
+
   uploadProfilePic(_image) async {
     final User _user = _auth.currentUser;
 
@@ -94,13 +115,12 @@ class AuthService {
     return _user.uid;
   }
 
-  getProfilePic() async {
-    final User _user = _auth.currentUser;
+  setProficPic(profilePicUrl) {
+    _profilePic = profilePicUrl;
+  }
 
-    Reference reference = storage.ref().child("profileImages/${_user.uid}");
-    var downloadUrl = await reference.getDownloadURL();
-    // //String url = (await reference.getDownloadURL()).toString();
-    return new NetworkImage(downloadUrl);
+  getProfilePic() {
+    return _profilePic;
   }
 
   /// This method is used to logout the `FirebaseUser`

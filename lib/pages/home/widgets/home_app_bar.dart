@@ -16,19 +16,37 @@ class HomeAppBar extends StatefulWidget {
 
 class _HomeAppBarPageState extends State<HomeAppBar> {
   String _profilePic;
-  User profile;
-  _HomeAppBarPageState({this.profile});
+
+  @override
+  void initState() {
+    super.initState();
+    downloadURLExample();
+  }
 
   Future<void> downloadURLExample() async {
-    FirebaseStorage storage = FirebaseStorage.instance;
-    Reference reference =
-        storage.ref().child("profileImages/${AuthService().getUid()}");
-    var downloadUrl = await reference.getDownloadURL();
-    setState(() {
-      _profilePic = downloadUrl;
-    });
+    try {
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference reference =
+          storage.ref().child("profileImages/${AuthService().getUid()}");
+      if (reference != null) {
+        var downloadUrl = await reference?.getDownloadURL();
 
-    return downloadUrl;
+        // store profile pic url in service
+        AuthService().setProficPic(downloadUrl);
+
+        setState(() {
+          _profilePic = downloadUrl;
+        });
+      } else {
+        setState(() {
+          _profilePic = null;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _profilePic = null;
+      });
+    }
   }
 
   @override
@@ -72,9 +90,9 @@ class _HomeAppBarPageState extends State<HomeAppBar> {
             ),
             GestureDetector(
               onTap: widget.onProfileTab,
-              child: (downloadURLExample().toString() == null)
+              child: (_profilePic == null)
                   ? RoundImage(
-                      path: profile.profileImage,
+                      path: widget.profile.profileImage,
                       width: 40,
                       height: 40,
                     )

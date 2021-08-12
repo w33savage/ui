@@ -1,4 +1,5 @@
 import 'package:club_house/models/user.dart';
+import 'package:club_house/services/authenticate.dart';
 import 'package:club_house/util/data.dart';
 import 'package:club_house/widgets/round_image.dart';
 import 'package:flutter/material.dart';
@@ -40,12 +41,20 @@ class ProfilePage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RoundImage(
-          path: profile.profileImage,
-          width: 100,
-          height: 100,
-          borderRadius: 35,
-        ),
+        AuthService().getProfilePic() == null
+            ? RoundImage(
+                path: profile.profileImage,
+                width: 100,
+                height: 100,
+                borderRadius: 35)
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(35),
+                child: Image.network(
+                  AuthService().getProfilePic(),
+                  height: 100,
+                  fit: BoxFit.fill,
+                  width: 100,
+                )),
         SizedBox(
           height: 20,
         ),
